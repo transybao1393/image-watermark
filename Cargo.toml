@@ -1,10 +1,10 @@
 [package]
 name = "image-watermark"
-version = "0.1.0"
+version = "0.5.0"
 edition = "2018"
 authors = ["Tran Sy Bao"]
 rust-version = "1.66.0"
-autobins = false
+autobins = false # To prevent Cargo from inferring src/bin/*.rs as an executable
 autotests = false
 autobenches = false
 
@@ -13,14 +13,19 @@ autobenches = false
 [dependencies]
 clap = { version = "4.0.32", features = ["derive"] }
 photon-rs = "0.3.1"
-image = "0.24.5"
 
-[[bin]]
-name = "test"
-test = false
-benches = false
+# [[bin]]
+# name = "test"
+# test = false
+# bench = false
 
 [[bin]]
 name = "photon_test"
 test = false
-benches = false
+bench = false
+
+[[bin]]
+name = "image_watermark"
+test = false
+bench = false
+path = "src/main.rs"

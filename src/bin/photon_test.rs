@@ -7,52 +7,55 @@ use std::env;
 use std::path::Path;
 #[allow(unused_imports)]
 use std::ffi::OsStr;
-#[allow(unused_imports)]
-use image::GenericImageView;
 
-#[allow(dead_code)]
 fn main() {
     //- need to set this for debugging only
-    // env::set_var("RUST_BACKTRACE", "1"); //- 1 or full
+    //- Can be move this into general
+    env::set_var("RUST_BACKTRACE", "1"); //- 1 or full
 
-    //- image crate test
-    //- FIXME: Should this be into a macro
-    // let relative_path = PathBuf::from("assets/images/test3.jpeg");
-    // let mut absolute_path = std::env::current_dir().unwrap(); //- current project path
-    // absolute_path.push(relative_path);
-    // let t_string = absolute_path.into_os_string().into_string().unwrap();
-    // println!("t_string {}", &t_string);
-
-    let relative_path_string = String::from("assets/images/test2.jpeg");
-    let absolute_path = get_image_from_relative_path(&relative_path_string);
-
-    let mut img = open_image(&absolute_path).expect("File cant be open");
-
-    // Increment the red channel by 40
-    photon_rs::channels::alter_red_channel(&mut img, 40);
-
-    // Write file to filesystem.
-    save_image(img, "processed_image.jpeg");
-    // Ok(())
+    match sample_image_processing("assets/images/test2.jpeg") {
+        Err(e) => panic!("photon function for image processing failed with error {}", e),
+        Ok(msg) => println!("{}", msg)
+    }
     
 }
 
+//- FIXME: Should this be into a macro?
 #[allow(dead_code)]
-fn photon_test_func(absolute_path: &String) -> Result<(), Box<dyn std::error::Error>> {
-    //- FIXME: Add try catch and error handling for this
-    let mut img = open_image(absolute_path).expect("File cant be open");
+fn sample_image_processing(relative_path: &str) -> Result<&str, Box<dyn std::error::Error>> {
+    // let relative_path_string = String::from("assets/images/test2.jpeg");
+
+    let relative_path_string = String::from(relative_path);
+    let absolute_path = get_image_from_relative_path(&relative_path_string);
+
+    //- image processing
+    let mut img = open_image(&absolute_path)?;
 
     // Increment the red channel by 40
     photon_rs::channels::alter_red_channel(&mut img, 40);
 
     // Write file to filesystem.
+    //- FIXME: Need to upgrade to support custom output path
+    //- TODO: Need to save image into tmp folder "/tmp"?
+    // let tmp_folder_name_path = String::from_str("/tmp");
     save_image(img, "processed_image.jpeg");
-    Ok(())
+    Ok("Image processing successfully!")
 }
 
-//- relative_path = "assets/images/test3.jpeg"
 #[allow(dead_code)]
+fn add_default_watermark() -> (){
+    //- TODO: add default watermark with fixed text
+}
+
+#[allow(dead_code)]
+fn add_custom_watermark(__watermark_text: &str) -> (){
+    //- TODO: add custom watermark with fixed text
+}
+
+//- relative to absolute
+//- relative_path = "assets/images/test3.jpeg"
 fn get_image_from_relative_path(relative_path: &String) -> String {
+    //- FIXME: Need to upgrade: add relative path cleanup before converting
     // let absolute_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test3.jpeg";
     
     let relative_path = PathBuf::from(&relative_path); //- pass a reference to avoid lifetime drop
@@ -62,3 +65,6 @@ fn get_image_from_relative_path(relative_path: &String) -> String {
     //- return
     absolute_path.into_os_string().into_string().unwrap()
 }
+
+//- TODO: Image Correction
+//- TODO: Image Resizing
