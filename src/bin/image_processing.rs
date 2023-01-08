@@ -1,18 +1,11 @@
 use photon_rs::native::{open_image, save_image};
 use std::path::PathBuf;
-use std::vec;
 use photon_rs::multiple::watermark;
 use photon_rs::transform::SamplingFilter;
 // use photon_rs::transform::seam_carve;
 use photon_rs::transform::resize;
 use photon_rs::PhotonImage;
-
-#[allow(unused_imports)]
 use std::env;
-#[allow(unused_imports)]
-use std::path::Path;
-#[allow(unused_imports)]
-use std::ffi::OsStr;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 struct ImageDimension {
@@ -24,13 +17,6 @@ struct ImageDimension {
 struct ImageCoords {
     top: u32,
     left: u32
-}
-
-//- struct input models
-#[derive(Debug)]
-struct ImageScaleRatio {
-    new_width: u32,
-    new_height: u32
 }
 
 #[derive(Debug)]
@@ -47,8 +33,6 @@ impl WatermarkInput {
         true
     }
 }
-
-//- struct output models
 
 //- this main func is used to test
 fn main() {
@@ -87,12 +71,10 @@ fn sample_image_processing(relative_path: &str) -> Result<&str, Box<dyn std::err
     Ok("Image processing successfully!")
 }
 
-//- basic approach: image inside image
-//- advance approach: text inside image
 pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<&str, Box<dyn std::error::Error>> {
     //- TODO: Save image to tmp folder?
 
-    //- get 2 images
+    //- main image open
     let mut main_image: PhotonImage = match open_image(&watermark_input.image_absolute_path) {
         Ok(photon_image) => photon_image,
         Err(e) => panic!("Error when open main image with error {}", e)
@@ -100,7 +82,8 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
 
     println!("photon image {:?}", main_image.get_width());
 
-    //- fixed watermark image resize
+    //- watermark image resize
+    //- FIXME: Finding ideal ratio/percentage of resize dimension for that image
     let resized_watermark_image: PhotonImage = match open_image(&watermark_input.watermark_image_absolute_path) {
         Ok(photon_image_instance) => resize(&photon_image_instance,
              (photon_image_instance.get_width() as f64 * 0.4).floor() as u32, 
@@ -120,28 +103,19 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
     
 
     //- watermark
-    // watermark(&mut main_image, &watermark_image, 0_u32, 0_u32);
     watermark(&mut main_image, &resized_watermark_image, image_coords.left, image_coords.top);
 
-    //- output
+    //- output consume
     let mut output_with_file = watermark_input.output_path.to_owned();
     let output_file_name = "/processed_image.jpeg"; //- TODO: Need to add more validation here
     output_with_file.push_str(output_file_name);
 
+    //- save to output path
     save_image(main_image, &output_with_file);
     Ok("Image processing successfully!")
 }
 
-#[allow(dead_code)]
-fn resize_ratio(main_image: &PhotonImage) -> ImageScaleRatio {
-    ImageScaleRatio {
-        new_width: (main_image.get_width() as f64 * 0.4).floor() as u32,
-        new_height: (main_image.get_height() as f64 * 0.4).floor() as u32
-    }
-}
-
 fn generate_watermark_center_coords (main_image: &PhotonImage, watermark_image: &PhotonImage) -> ImageCoords {
-    
     let main_image_info = ImageDimension {
         width: main_image.get_width(),
         height: main_image.get_height()
@@ -167,13 +141,9 @@ fn generate_watermark_center_coords (main_image: &PhotonImage, watermark_image: 
     }
 }
 
-//- relative to absolute
-//- relative_path = "assets/images/test3.jpeg"
 //- This part is actually get the current project dir
 fn get_image_from_relative_path(relative_path: &String) -> String {
     //- FIXME: Need to upgrade: add relative path cleanup before converting
-    // let absolute_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test3.jpeg";
-    
     let relative_path = PathBuf::from(&relative_path); //- pass a reference to avoid lifetime drop
     let mut absolute_path = std::env::current_dir().unwrap(); //- current project path
     absolute_path.push(relative_path);
@@ -182,9 +152,4 @@ fn get_image_from_relative_path(relative_path: &String) -> String {
     absolute_path.into_os_string().into_string().unwrap()
 }
 
-//- Useful library
-//- https://kosinix.github.io/raster/docs/raster/
-//- https://github.com/rayon-rs/rayon
-//- https://github.com/kornelski/rust-rgb
-//- https://docs.rs/imageproc/latest/imageproc/
-
+//- TODO: Convert custom text to image

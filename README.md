@@ -38,13 +38,13 @@ Goals:
 * Batch/folder image-in-image support
 
 ## Roadmap
-### Objectives for 2023
+### Objectives for Q1+Q2/2023
 * Single image-in-image support
 * Single text-in-image support
 * Wide range image data types support
 * Relative path support
 
-### Objectives for 2024
+### Objectives for Q3+Q4/2023
 * Batch/folder image-in-image support
 
 ## Getting Started

@@ -19,14 +19,10 @@ struct Args {
     /// File output path
     #[arg(short, long)]
     output_path: String
-
-    //- NEXT: batch image support
 }
 
 fn main() {
     let args = Args::parse();
-
-    // let absolute_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test3.jpeg";
 
     let watermark_input = WatermarkInput {
         image_absolute_path: args.image_absolute_path.to_owned(),
