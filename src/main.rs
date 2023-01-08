@@ -1,24 +1,43 @@
 //- module root
 use clap::Parser;
+use image_processing::WatermarkInput;
 
-/// Simple program to greet a person
-#[derive(Parser, Debug)] //- outer attribute
-#[command(author, version, about, long_about = None)] //- outer attributes
+use crate::image_processing::add_watermark_by_image_ratio;
+#[path = "bin/image_processing.rs"] mod image_processing;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
 struct Args {
-    /// Name of the person to greet
-    #[arg(short, long)] //- inner attribute
-    name: String,
+    /// Main image absolute path
+    #[arg(short, long)]
+    image_absolute_path: String,
 
-    /// Number of times to greet
-    #[arg(short, long, default_value_t = 1)] //- inner attribute
-    count: u8,
+    /// Watermark image absolute path
+    #[arg(short, long)]
+    watermark_image_absolute_path: String,
+
+    /// File output path
+    #[arg(short, long)]
+    output_path: String
+
+    //- NEXT: batch image support
 }
 
 fn main() {
     let args = Args::parse();
 
-    for _ in 0..args.count {
-        println!("Hello {}!", args.name)
+    // let absolute_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test3.jpeg";
+
+    let watermark_input = WatermarkInput {
+        image_absolute_path: args.image_absolute_path.to_owned(),
+        watermark_image_absolute_path: args.watermark_image_absolute_path.to_owned(),
+        output_path: args.output_path.to_owned()
+    };
+    match add_watermark_by_image_ratio(&watermark_input) {
+        Err(e) => panic!("photon function for image processing failed with error {}", e),
+        Ok(msg) => println!("{}", msg)
     }
+
+    println!("watermark model {:?}", watermark_input);
 
 }
