@@ -1,11 +1,11 @@
+/// This file is moved and will be treated as a single library
+/// And will not be listed in module tree
 use photon_rs::native::{open_image, save_image};
 use std::path::PathBuf;
 use photon_rs::multiple::watermark;
 use photon_rs::transform::SamplingFilter;
-// use photon_rs::transform::seam_carve;
 use photon_rs::transform::resize;
 use photon_rs::PhotonImage;
-use std::env;
 use std::path::Path;
 use std::ffi::OsStr;
 
@@ -39,20 +39,9 @@ enum SupportedImageTypes {
 
 impl WatermarkInput {
     fn file_path_validate(&self) -> bool {
-        //- validate path and return
-        //- check if path is valid
-        //- check if file exists
-        //- check 2 file exist and 1 path exist
         let new_main_image = Path::new(&self.image_absolute_path);
         let new_watermark_image = Path::new(&self.watermark_image_absolute_path);
         let new_output_path = Path::new(&self.output_path);
-
-        //- check if we it is relative or absolute path
-        // let main_image_absolute_path = "";
-        // let watermark_image_absolute_path = "";
-        // if new_main_image.is_relative() {  
-        // } else if new_watermark_image.is_relative() {
-        // }
 
         if !new_main_image.is_file() |  
         !new_watermark_image.is_file() |
@@ -71,35 +60,7 @@ impl WatermarkInput {
 
 }
 
-//- this main func is used to test
-#[allow(dead_code)]
-fn main() {
-    //- need to set this for debugging only
-    //- Can be move this into general
-    env::set_var("RUST_BACKTRACE", "1"); //- 1 or full
-
-    //- test relative path to absolute path
-    // let relative_path_sample = "~/Documents/projects/rust/image-watermark/assets/images/test4.jpeg";
-    // let relative_path_sample2 = "../../assets/images/test2.jpeg";
-    // let absolute_path = match abs_path(relative_path_sample2) {
-    //     None => panic!("Cannot convert"),
-    //     Some(absolute_path) => absolute_path
-    // };
-
-    //- test if path exists
-    let main_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test4.jpeg";
-    let watermark_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/watermark.png";
-    let output_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images";
-
-    let watermark_input = WatermarkInput {
-        image_absolute_path: main_image_path.to_owned(),
-        watermark_image_absolute_path: watermark_image_path.to_owned(),
-        output_path: output_path.to_owned()
-    };
-    //- non-recoverable return
-    assert!(watermark_input.file_path_validate(), "Files or output path is invalid!");
-    println!("Do something else...");
-}
+fn main() {}
 
 fn abs_path(p: &str) -> Option<String> {
     shellexpand::full(p)
@@ -123,11 +84,6 @@ fn sample_image_processing(relative_path: &str) -> Result<&str, Box<dyn std::err
     //- sample watermark
     let watermark_image = open_image("assets/images/signature.png").expect("File should open");
     watermark(&mut img, &watermark_image, 30_u32, 40_u32);
-
-    // Write file to filesystem.
-    //- FIXME: Need to upgrade to support custom output path
-    //- TODO: Need to save image into tmp folder "/tmp"?
-    // let tmp_folder_name_path = String::from_str("/tmp");
     save_image(img, "processed_image.jpeg");
     Ok("Image processing successfully!")
 }
@@ -206,14 +162,3 @@ fn get_image_from_relative_path(relative_path: &str) -> String {
     //- return
     absolute_path.into_os_string().into_string().unwrap()
 }
-
-//- TODO: Convert custom text to image
-//- TODO: Write test and benchmarks => Work in progress
-//- TODO: Alpha channel (for transperant background check) handling
-//- TODO: Bring some function to macro -> Have to know that which code type can be moved to macro?
-//- TODO: Write CI/CD and code coverage
-//- TODO: WebAssembly support
-//- TODO: Image file type validation
-//- TODO: Applying modules into rust
-//- TODO: Convert to function chain applying closures
-//- TODO: Check path valid => DONE

@@ -5,7 +5,6 @@ use photon_rs::transform::SamplingFilter;
 // use photon_rs::transform::seam_carve;
 use photon_rs::transform::resize;
 use photon_rs::PhotonImage;
-use std::env;
 use std::path::Path;
 use std::ffi::OsStr;
 
@@ -39,20 +38,9 @@ enum SupportedImageTypes {
 
 impl WatermarkInput {
     fn file_path_validate(&self) -> bool {
-        //- validate path and return
-        //- check if path is valid
-        //- check if file exists
-        //- check 2 file exist and 1 path exist
         let new_main_image = Path::new(&self.image_absolute_path);
         let new_watermark_image = Path::new(&self.watermark_image_absolute_path);
         let new_output_path = Path::new(&self.output_path);
-
-        //- check if we it is relative or absolute path
-        // let main_image_absolute_path = "";
-        // let watermark_image_absolute_path = "";
-        // if new_main_image.is_relative() {  
-        // } else if new_watermark_image.is_relative() {
-        // }
 
         if !new_main_image.is_file() |  
         !new_watermark_image.is_file() |
@@ -69,36 +57,6 @@ impl WatermarkInput {
         //- check if file is image and type is in enum
     }
 
-}
-
-//- this main func is used to test
-#[allow(dead_code)]
-fn main() {
-    //- need to set this for debugging only
-    //- Can be move this into general
-    env::set_var("RUST_BACKTRACE", "1"); //- 1 or full
-
-    //- test relative path to absolute path
-    // let relative_path_sample = "~/Documents/projects/rust/image-watermark/assets/images/test4.jpeg";
-    // let relative_path_sample2 = "../../assets/images/test2.jpeg";
-    // let absolute_path = match abs_path(relative_path_sample2) {
-    //     None => panic!("Cannot convert"),
-    //     Some(absolute_path) => absolute_path
-    // };
-
-    //- test if path exists
-    let main_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test4.jpeg";
-    let watermark_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/watermark.png";
-    let output_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images";
-
-    let watermark_input = WatermarkInput {
-        image_absolute_path: main_image_path.to_owned(),
-        watermark_image_absolute_path: watermark_image_path.to_owned(),
-        output_path: output_path.to_owned()
-    };
-    //- non-recoverable return
-    assert!(watermark_input.file_path_validate(), "Files or output path is invalid!");
-    println!("Do something else...");
 }
 
 fn abs_path(p: &str) -> Option<String> {
@@ -123,11 +81,6 @@ fn sample_image_processing(relative_path: &str) -> Result<&str, Box<dyn std::err
     //- sample watermark
     let watermark_image = open_image("assets/images/signature.png").expect("File should open");
     watermark(&mut img, &watermark_image, 30_u32, 40_u32);
-
-    // Write file to filesystem.
-    //- FIXME: Need to upgrade to support custom output path
-    //- TODO: Need to save image into tmp folder "/tmp"?
-    // let tmp_folder_name_path = String::from_str("/tmp");
     save_image(img, "processed_image.jpeg");
     Ok("Image processing successfully!")
 }
@@ -156,9 +109,7 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
 
     //- calculate (x, y) for watermark image over main image
     let image_coords = generate_watermark_center_coords(&main_image, &resized_watermark_image);
-    println!("image coords {:?}", image_coords);
     
-
     //- watermark
     watermark(&mut main_image, &resized_watermark_image, image_coords.left, image_coords.top);
 
@@ -169,7 +120,7 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
 
     //- save to output path
     save_image(main_image, &output_with_file);
-    Ok("Image processing successfully!")
+    Ok(&watermark_input.output_path)
 }
 
 fn generate_watermark_center_coords (main_image: &PhotonImage, watermark_image: &PhotonImage) -> ImageCoords {
