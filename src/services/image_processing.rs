@@ -206,14 +206,3 @@ fn get_image_from_relative_path(relative_path: &str) -> String {
     //- return
     absolute_path.into_os_string().into_string().unwrap()
 }
-
-//- TODO: Convert custom text to image
-//- TODO: Write test and benchmarks => Work in progress
-//- TODO: Alpha channel (for transperant background check) handling
-//- TODO: Bring some function to macro -> Have to know that which code type can be moved to macro?
-//- TODO: Write CI/CD and code coverage
-//- TODO: WebAssembly support
-//- TODO: Image file type validation
-//- TODO: Applying modules into rust
-//- TODO: Convert to function chain applying closures
-//- TODO: Check path valid => DONE

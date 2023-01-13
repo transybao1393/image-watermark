@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["Tran Sy Bao"]
 rust-version = "1.66.0"
 autobins = false # To prevent Cargo from inferring src/bin/*.rs as an executable
-autotests = false
+autotests = true
 autobenches = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -13,6 +13,7 @@ autobenches = false
 [dependencies]
 clap = { version = "4.0.32", features = ["derive"] }
 photon-rs = "0.3.1"
+shellexpand = "3.0.0"
 
 # [[bin]]
 # name = "test"

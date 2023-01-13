@@ -1,9 +1,11 @@
 //- module root
 use clap::Parser;
-use image_processing::WatermarkInput;
 
-use crate::image_processing::add_watermark_by_image_ratio;
-#[path = "bin/image_processing.rs"] mod image_processing;
+mod services;
+use services::image_processing::{
+    WatermarkInput, 
+    add_watermark_by_image_ratio
+};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -33,7 +35,4 @@ fn main() {
         Err(e) => panic!("photon function for image processing failed with error {}", e),
         Ok(msg) => println!("{}", msg)
     }
-
-    println!("watermark model {:?}", watermark_input);
-
 }
