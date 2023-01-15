@@ -28,15 +28,8 @@ pub struct WatermarkInput {
     pub output_path: String
 }
 
-enum SupportedImageTypes {
-    JPEG,
-    JPG,
-    PNG,
-    TIFF,
-    BMP
-}
-
 impl WatermarkInput {
+    //- FIXME: Combine fix_path_validate and image_type_validate
     fn file_path_validate(&self) -> bool {
         let new_main_image = Path::new(&self.image_absolute_path);
         let new_watermark_image = Path::new(&self.watermark_image_absolute_path);
@@ -52,13 +45,44 @@ impl WatermarkInput {
         }
     }
     
-    fn image_type_valid() {
-        //- image support type: jpeg, jpg, png, tiff, bmp
-        //- check if file is image and type is in enum
+    #[allow(dead_code)]
+    fn image_type_validate(&self) -> usize {
+        //- FIXME: Can be use function chaining
+        //- Suggested: create bool array => check if main image extension is supported => record to array 
+        //- => check if watermark image extension is valid => record result to array 
+        //- => calculation base on last result
+        let main_image_extension = Path::new(&self.image_absolute_path).extension().unwrap();
+        let watermark_image_extension = Path::new(&self.watermark_image_absolute_path).extension().unwrap(); 
+        
+        let supported_types: [&str; 5] = ["jpeg", "jpg", "png", "tiff", "bmp"];
+        //- FIXME: Should not iterate 2 times
+        let is_support_main_image_type = supported_types.iter().any(|&s| s == &main_image_extension.to_owned());
+        let is_support_watermark_image_type = supported_types.iter().any(|&s| s == &watermark_image_extension.to_owned());
+        
+        let actual_arr: Vec<bool> = vec![is_support_main_image_type, is_support_watermark_image_type];
+        let expected_arr = vec![true, true];
+        let matching = expected_arr.iter().zip(&actual_arr).filter(|&(expected_arr, actual_arr)| expected_arr == actual_arr).count();
+        matching
     }
 
 }
 
+/// inner unit test
+#[test]
+fn is_file_extension_supported() {
+    let main_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test4.apng";
+    let watermark_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/watermark.jpeg";
+    let watermark_input = WatermarkInput {
+        image_absolute_path: main_image_path.to_owned(),
+        watermark_image_absolute_path: watermark_image_path.to_owned(),
+        output_path: String::from("")
+    };
+    let actual_result: usize = watermark_input.image_type_validate();
+    assert_eq!(2, actual_result)
+}
+
+//- TODO: Small support for file relative path in the next release
+#[allow(dead_code)]
 fn abs_path(p: &str) -> Option<String> {
     shellexpand::full(p)
         .ok()
@@ -106,6 +130,7 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
     
     //- assert macro, non-recoverable error, panic
     assert!(watermark_input.file_path_validate(), "Files or output path is invalid!");
+    assert_eq!(2, watermark_input.image_type_validate(), "Image type invalid or not support!");
 
     //- calculate (x, y) for watermark image over main image
     let image_coords = generate_watermark_center_coords(&main_image, &resized_watermark_image);
@@ -120,7 +145,7 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
 
     //- save to output path
     save_image(main_image, &output_with_file);
-    Ok(&watermark_input.output_path)
+    Ok("Success! Please check output path")
 }
 
 fn generate_watermark_center_coords (main_image: &PhotonImage, watermark_image: &PhotonImage) -> ImageCoords {

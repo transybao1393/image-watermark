@@ -29,14 +29,6 @@ pub struct WatermarkInput {
     pub output_path: String
 }
 
-enum SupportedImageTypes {
-    JPEG,
-    JPG,
-    PNG,
-    TIFF,
-    BMP
-}
-
 impl WatermarkInput {
     fn file_path_validate(&self) -> bool {
         let new_main_image = Path::new(&self.image_absolute_path);
@@ -53,9 +45,14 @@ impl WatermarkInput {
         }
     }
     
-    fn image_type_valid() {
+    fn image_type_valid(&self) -> bool {
         //- image support type: jpeg, jpg, png, tiff, bmp
         //- check if file is image and type is in enum
+        //- Step 1: Get image extension from image_absolute_path and watermark_image_absolute_path
+        //- Step 2: Check if image extension match enum
+        //- Step 3: Return
+        let supported_types: [&str; 5] = ["jpeg", "jpg", "png", "tiff", "bmp"];
+        supported_types.iter().any(|&s| s == &self.image_absolute_path)
     }
 
 }

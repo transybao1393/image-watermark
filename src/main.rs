@@ -1,5 +1,9 @@
 //- module root
-use clap::Parser;
+use clap::{
+    Args, 
+    Parser,
+    Subcommand
+};
 
 mod services;
 use services::image_processing::{
@@ -8,8 +12,8 @@ use services::image_processing::{
 };
 
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
+#[clap(author, version, about)]
+struct ImageWatermarkArgs {
     /// Main image absolute path
     #[arg(short, long)]
     image_absolute_path: String,
@@ -24,7 +28,7 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse();
+    let args = ImageWatermarkArgs::parse();
 
     let watermark_input = WatermarkInput {
         image_absolute_path: args.image_absolute_path.to_owned(),

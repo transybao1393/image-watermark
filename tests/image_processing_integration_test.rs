@@ -1,16 +1,12 @@
 use std::path::Path;
 
+/// integration test
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-
     //- test cases
     //- Test if path is valid or invalid
     //- Test if file is not found
+    #[allow(dead_code)]
     fn test_file_path_validate() {
         // let main_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/test4.jpeg";
         // let watermark_image_path = "/Users/macintoshhd/Documents/projects/rust/image-watermark/assets/images/watermark.png";
@@ -26,6 +22,7 @@ mod tests {
         // println!("Do something else...");
     }
 
+    #[allow(dead_code)]
     fn test_absolute_relative_path() {
         //- test relative path to absolute path
         // let relative_path_sample = "~/Documents/projects/rust/image-watermark/assets/images/test4.jpeg";
