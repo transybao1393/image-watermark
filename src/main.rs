@@ -14,12 +14,10 @@ use services::image_processing::{
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
 struct ImageWatermarkArgs {
-    /// watermark type
     #[clap(subcommand)]
     watermark_type: WatermarkType
 }
 
-// Step 1: Choose image to text
 #[derive(Debug, Subcommand)]
 enum WatermarkType {
     /// Image-in-image watermark
@@ -29,7 +27,6 @@ enum WatermarkType {
     Text(TextCommand),
 }
 
-// Step 2: Choose Image
 #[derive(Debug, Args)]
 struct ImageCommand {
     /// Main image absolute path
@@ -45,7 +42,6 @@ struct ImageCommand {
     image_output_path: String,
 }
 
-// Step 3: Choose Text
 #[derive(Debug, Args)]
 struct TextCommand {
     /// Main image absolute path
@@ -92,21 +88,6 @@ fn main() {
             println!("image_absolute_path {:?}, watermark_image_absolute_path {:?}, output_path {:?}", image_text_absolute_path, custom_text, image_text_output_path);
         },
     }
-
-
-
-    // let imageCommand = "";
-    // let TextCommand = "";
-
-    // let watermark_input = WatermarkInput {
-    //     image_absolute_path: args.image_absolute_path.to_owned(),
-    //     watermark_image_absolute_path: args.watermark_image_absolute_path.to_owned(),
-    //     output_path: args.output_path.to_owned()
-    // };
-    // match add_watermark_by_image_ratio(&watermark_input) {
-    //     Err(e) => panic!("photon function for image processing failed with error {}", e),
-    //     Ok(msg) => println!("{}", msg)
-    // }
 }
 
 #[test]
