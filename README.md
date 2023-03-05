@@ -75,7 +75,7 @@ image_watermark --help
 
 ## Authors
 
-* [transybao1393](https://github.com/transybao1393)
+* [Johnathan](https://github.com/transybao1393)
 
 ## Version History
 

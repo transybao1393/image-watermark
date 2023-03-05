@@ -1,6 +1,6 @@
 [package]
 name = "image-watermark"
-version = "1.0.0"
+version = "1.5.0"
 edition = "2018"
 authors = ["Tran Sy Bao"]
 rust-version = "1.66.0"
@@ -14,11 +14,6 @@ autobenches = false
 clap = { version = "4.0.32", features = ["derive"] }
 photon-rs = "0.3.1"
 shellexpand = "3.0.0"
-
-# [[bin]]
-# name = "test"
-# test = false
-# bench = false
 
 [[bin]]
 name = "image_processing"
