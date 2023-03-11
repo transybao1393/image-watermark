@@ -86,7 +86,14 @@ image_watermark --help
 * 1.0.0
     * Image-in-image watermark added
     * Auto resize and align watermark over main image
-    * See [commit change]() or See [release history]()
+    * See [commit change](https://github.com/transybao1393/image-watermark/commits/main) or See [release history](https://github.com/transybao1393/image-watermark/releases)
+* 1.5.0
+    * Text-in-image watermark added
+    * Custom text width validation
+    * Support text and image command with subcommand
+    * Fix minor bugs
+    * Text center image alignment
+    * See [commit change](https://github.com/transybao1393/image-watermark/commits/main) or See [release history](https://github.com/transybao1393/image-watermark/releases)
 
 ## License
 
