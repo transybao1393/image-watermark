@@ -97,4 +97,4 @@ image_watermark --help
 
 ## License
 
-This project is licensed under the BSD-style License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the [BSD-3-Clause](https://gist.github.com/nicolasdao/a7adda51f2f185e8d2700e1573d8a633#the-bsd-license-case) License - see the [LICENSE.md](LICENSE.md) file for details
