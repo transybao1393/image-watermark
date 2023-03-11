@@ -60,6 +60,10 @@ Goals:
 * No additional library required to install
 
 ### Executing program
+* How to build this CLI
+```
+cargo build --bin image_watermark
+```
 
 * How to run this CLI
 ```
@@ -86,4 +90,4 @@ image_watermark --help
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the BSD-style License - see the [LICENSE.md](LICENSE.md) file for details
