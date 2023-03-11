@@ -1,12 +1,24 @@
-use photon_rs::native::{open_image, save_image};
+use core::panic;
 use std::path::PathBuf;
+use std::path::Path;
+use std::ffi::OsStr;
+use image::ImageResult;
+//- photon_rs
+use photon_rs::native::{open_image, save_image};
 use photon_rs::multiple::watermark;
 use photon_rs::transform::SamplingFilter;
 // use photon_rs::transform::seam_carve;
 use photon_rs::transform::resize;
 use photon_rs::PhotonImage;
-use std::path::Path;
-use std::ffi::OsStr;
+
+//- imageproc
+use imageproc::drawing::{draw_text_mut, text_size};
+
+//- image
+use image::Rgba;
+
+//- rusttype
+use rusttype::{Font, Scale};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 struct ImageDimension {
@@ -26,6 +38,13 @@ pub struct WatermarkInput {
     pub image_absolute_path: String,
     pub watermark_image_absolute_path: String,
     pub output_path: String
+}
+
+#[derive(Debug)]
+pub struct TextWatermarkInput {
+    //- required
+    pub image_absolute_path: String,
+    pub custom_text: String,
 }
 
 impl WatermarkInput {
@@ -181,4 +200,52 @@ fn get_image_from_relative_path(relative_path: &str) -> String {
     
     //- return
     absolute_path.into_os_string().into_string().unwrap()
+}
+
+pub fn add_text_to_image(text_watermark_input: &TextWatermarkInput) -> ImageResult<()> {
+    //- get image extension
+    let mut img = match image::open(&text_watermark_input.image_absolute_path) {
+        Ok(img) => img,
+        Err(e) => panic!("{}", e)
+    };
+
+    //- fonts
+    let font: &[u8] = include_bytes!("./fonts/DejaVuSans.ttf") as &[u8];
+    let font = Font::try_from_bytes(font).unwrap();
+
+    //- scale
+    let scale = Scale {
+        x: img.width() as f32 * 0.05,
+        y: img.height() as f32 * 0.05,
+    };
+
+    //- center coordination
+    let (text_w, text_h) = text_size(scale, &font, &text_watermark_input.custom_text);
+
+    //- text width validation
+    if (text_w as f32) > (img.width() as f32 * 0.8) {
+        panic!("Custom text is too long")
+    }
+
+    let main_image_info = ImageDimension {
+        width: img.width(),
+        height: img.height()
+    };
+
+    let left = (main_image_info.width / 2) - (text_w as u32 / 2);
+    let top = (main_image_info.height / 2) - (text_h as u32 / 2);
+
+    //- imageproc: draw_text_mut
+    //- black: Rgba([0u8, 0u8, 0u8, 255u8])
+    draw_text_mut(&mut img, 
+        Rgba([255u8, 255u8, 255u8, 0.1 as u8]), 
+        left as i32, 
+        top as i32, 
+        scale, 
+        &font, 
+        &text_watermark_input.custom_text);
+
+    //- save image
+    let path = Path::new(&text_watermark_input.image_absolute_path);
+    img.save(path)
 }

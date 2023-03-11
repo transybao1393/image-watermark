@@ -1,3 +1,5 @@
+mod services;
+
 //- module root
 use clap::{
     Args, 
@@ -5,10 +7,11 @@ use clap::{
     Subcommand,
 };
 
-mod services;
 use services::image_processing::{
     WatermarkInput, 
-    add_watermark_by_image_ratio
+    TextWatermarkInput,
+    add_watermark_by_image_ratio,
+    add_text_to_image
 };
 
 #[derive(Parser, Debug)]
@@ -51,10 +54,6 @@ struct TextCommand {
     /// Watermark custom text
     #[arg(short = 't', long)]
     custom_text: String,
-
-    /// File output path
-    #[arg(short = 'o', long = "output_path")]
-    image_text_output_path: String,
 }
 
 fn main() {
@@ -68,7 +67,6 @@ fn main() {
                 image_output_path
             }
         ) => {
-            println!("image_absolute_path {:?}, watermark_image_absolute_path {:?}, output_path {:?}", image_absolute_path, watermark_image_absolute_path, image_output_path);
             let watermark_input = WatermarkInput {
                 image_absolute_path: image_absolute_path.to_owned(),
                 watermark_image_absolute_path: watermark_image_absolute_path.to_owned(),
@@ -83,9 +81,16 @@ fn main() {
             TextCommand { 
                 image_text_absolute_path, 
                 custom_text, 
-                image_text_output_path }
+            }
         ) => {
-            println!("image_absolute_path {:?}, watermark_image_absolute_path {:?}, output_path {:?}", image_text_absolute_path, custom_text, image_text_output_path);
+            let text_watermark_input = TextWatermarkInput {
+                image_absolute_path: image_text_absolute_path.to_owned(),
+                custom_text: custom_text.to_owned(),
+            };
+            match add_text_to_image(&text_watermark_input) {
+                Ok(t) => println!("{:?}", t),
+                Err(image_error) => println!("Text-to-image processing failed with error {:?}", image_error)
+            }
         },
     }
 }

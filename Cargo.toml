@@ -12,7 +12,10 @@ autobenches = false
 
 [dependencies]
 clap = { version = "4.0.32", features = ["derive"] }
+image = "0.24.5"
+imageproc = "0.23.0"
 photon-rs = "0.3.1"
+rusttype = "0.9.3"
 shellexpand = "3.0.0"
 
 [[bin]]
