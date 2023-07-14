@@ -131,49 +131,94 @@ fn sample_image_processing(relative_path: &str) -> Result<&str, Box<dyn std::err
 pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<&str, Box<dyn std::error::Error>> {
     //- TODO: Save image to tmp folder?
 
-    //- main image open
-    let mut main_image: PhotonImage = match open_image(&watermark_input.image_absolute_path) {
-        Ok(photon_image) => photon_image,
-        Err(e) => panic!("Error when open main image with error {}", e)
-    };
-
-    //- watermark image resize
-    //- FIXME: Finding ideal ratio/percentage of resize dimension for that image
-    let resized_watermark_image: PhotonImage = match open_image(&watermark_input.watermark_image_absolute_path) {
-        Ok(photon_image_instance) => resize(&photon_image_instance,
-             (photon_image_instance.get_width() as f64 * 0.4).floor() as u32, 
-             (photon_image_instance.get_height() as f64 * 0.4).floor() as u32, 
-             SamplingFilter::Nearest),
-        Err(e) => panic!("Error when open watermark image with error {}", e)
-    };
-    
     //- assert macro, non-recoverable error, panic
     assert!(watermark_input.file_path_validate(), "Files or output path is invalid!");
     assert_eq!(2, watermark_input.image_type_validate(), "Image type invalid or not support!");
 
-    //- calculate (x, y) for watermark image over main image
-    let image_coords = generate_watermark_center_coords(&main_image, &resized_watermark_image);
+    //- multi threading approach
+    //- 1 thread for main image
+    //- 1 thread for watermark image
+    //- 1 thread for watermark image resize
+    //- 1 thread for watermark image position
+    //- 1 thread for watermark image merge
+    //- 1 thread for save image
+
+    //- multithreading
+    use std::thread;
+    // use std::sync::mpsc::channel;
+    use std::sync::mpsc::{Sender, channel};
+    let (tx, rx) = channel();
+    let tx: Sender<PhotonImage> = tx.clone();
+
+    //- applying smart pointers
+    use std::sync::{Arc, Mutex};
+    let new_watermark_input: WatermarkInput = WatermarkInput {
+        image_absolute_path: watermark_input.image_absolute_path.to_owned(),
+        watermark_image_absolute_path: watermark_input.watermark_image_absolute_path.to_owned(),
+        output_path: watermark_input.output_path.to_owned()
+    };
+    let watermark_input_arc = Arc::new(Mutex::new(new_watermark_input));
+    let watermark_input_arc_clone = Arc::clone(&watermark_input_arc);
+    let watermark_input_arc_clone_2 = Arc::clone(&watermark_input_arc);
+
+    //- open image handling
+    thread::spawn(move || {
+        let watermark_input_mutex_arc = watermark_input_arc_clone.lock().unwrap();
+        let main_image: PhotonImage = match open_image(&watermark_input_mutex_arc.image_absolute_path) {
+            Ok(photon_image) => photon_image,
+            Err(e) => panic!("Error when open main image with error {}", e)
+        };
+
+        //- if success, sending main image to next thread
+        tx.send(main_image).unwrap(); //- unwrap() handle error
+        drop(watermark_input_mutex_arc);
+    });
     
-    //- watermark
-    watermark(&mut main_image, &resized_watermark_image, image_coords.left, image_coords.top);
+    //- resize watermark image handling
+    let resize_watermark_threading = thread::spawn(move || {
+        let watermark_input_mutex_arc = watermark_input_arc_clone_2.lock().unwrap();
+        
+        //- output data build
+        let output_with_file = &mut watermark_input_mutex_arc.output_path.to_owned();
+        let output_file_name = "/processed_image.jpeg"; //- TODO: Need to add more validation here
+        output_with_file.push_str(output_file_name);
+        
+        //- resize watermark image processing
+        let resized_watermark_image: PhotonImage = match open_image(&watermark_input_mutex_arc.watermark_image_absolute_path) {
+            Ok(photon_image_instance) => resize(&photon_image_instance,
+                 (photon_image_instance.get_width() as f64 * 0.4).floor() as u32, 
+                 (photon_image_instance.get_height() as f64 * 0.4).floor() as u32, 
+                 SamplingFilter::Nearest),
+            Err(e) => panic!("Error when open watermark image with error {}", e)
+        };
 
-    //- output consume
-    let mut output_with_file = watermark_input.output_path.to_owned();
-    let output_file_name = "/processed_image.jpeg"; //- TODO: Need to add more validation here
-    output_with_file.push_str(output_file_name);
+        //- unlock mutex for another thread to process
+        drop(watermark_input_mutex_arc);
 
-    //- save to output path
-    save_image(main_image, &output_with_file);
+        //- receive main image from previous thread
+        let mut main_image: PhotonImage = rx.recv().unwrap();
+        //- calculate (x, y) for watermark image over main image
+        let image_coords: ImageCoords = generate_watermark_center_coords(&main_image, &resized_watermark_image);
+        
+        //- watermark
+        watermark(&mut main_image, &resized_watermark_image, image_coords.left, image_coords.top);
+
+        //- save to output path
+        save_image(main_image, &output_with_file);
+    });
+
+    // main_image_threading.join().unwrap();
+    resize_watermark_threading.join().unwrap();
     Ok("Success! Please check output path")
 }
 
 fn generate_watermark_center_coords (main_image: &PhotonImage, watermark_image: &PhotonImage) -> ImageCoords {
-    let main_image_info = ImageDimension {
+    let main_image_info: ImageDimension = ImageDimension {
         width: main_image.get_width(),
         height: main_image.get_height()
     };
 
-    let watermark_image_info = ImageDimension {
+    let watermark_image_info: ImageDimension = ImageDimension {
         width: watermark_image.get_width(),
         height: watermark_image.get_height()
     };
@@ -249,3 +294,6 @@ pub fn add_text_to_image(text_watermark_input: &TextWatermarkInput) -> ImageResu
     let path = Path::new(&text_watermark_input.image_absolute_path);
     img.save(path)
 }
+
+
+

@@ -72,10 +72,16 @@ fn main() {
                 watermark_image_absolute_path: watermark_image_absolute_path.to_owned(),
                 output_path: image_output_path.to_owned()
             };
+
+            //- performance accelerate
+            // use std::time::Instant;
+            // let start = Instant::now();
             match add_watermark_by_image_ratio(&watermark_input) {
                 Err(e) => panic!("Image-to-image processing failed with error {}", e),
                 Ok(msg) => println!("{}", msg)
             }
+            // let duration = start.elapsed();
+            // println!("Time elapsed in add_watermark_by_image_ratio() is: {:?}", duration);
         },
         WatermarkType::Text(
             TextCommand { 
@@ -93,13 +99,4 @@ fn main() {
             }
         },
     }
-}
-
-#[test]
-fn test_arg_list() {
-    let args = ImageWatermarkArgs::parse();
-    println!("args {:?}", args);
-    
-    let x = true;
-    assert!(x, "x wasn't true!")
 }
