@@ -135,14 +135,6 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
     assert!(watermark_input.file_path_validate(), "Files or output path is invalid!");
     assert_eq!(2, watermark_input.image_type_validate(), "Image type invalid or not support!");
 
-    //- multi threading approach
-    //- 1 thread for main image
-    //- 1 thread for watermark image
-    //- 1 thread for watermark image resize
-    //- 1 thread for watermark image position
-    //- 1 thread for watermark image merge
-    //- 1 thread for save image
-
     //- multithreading
     use std::thread;
     // use std::sync::mpsc::channel;
