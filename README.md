@@ -95,6 +95,9 @@ image_watermark --help
     * Text center image alignment
     * See [commit change](https://github.com/transybao1393/image-watermark/commits/main) or See [release history](https://github.com/transybao1393/image-watermark/releases)
 
+## Support me
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/transybao)
+
 ## License
 
 This project is licensed under the [BSD-3-Clause](https://gist.github.com/nicolasdao/a7adda51f2f185e8d2700e1573d8a633#the-bsd-license-case) License - see the [LICENSE.md](LICENSE.md) file for details
