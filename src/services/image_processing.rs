@@ -132,6 +132,7 @@ pub fn add_watermark_by_image_ratio(watermark_input: &WatermarkInput) -> Result<
     //- TODO: Save image to tmp folder?
 
     //- assert macro, non-recoverable error, panic
+    println!("watermark_input: {:?}", watermark_input);
     assert!(watermark_input.file_path_validate(), "Files or output path is invalid!");
     assert_eq!(2, watermark_input.image_type_validate(), "Image type invalid or not support!");
 
@@ -229,7 +230,7 @@ fn generate_watermark_center_coords (main_image: &PhotonImage, watermark_image: 
 }
 
 //- This part is actually get the current project dir
-fn get_image_from_relative_path(relative_path: &str) -> String {
+pub fn get_image_from_relative_path(relative_path: &str) -> String {
     //- FIXME: Need to upgrade: add relative path cleanup before converting
     let relative_path = PathBuf::from(&relative_path); //- pass a reference to avoid lifetime drop
     let mut absolute_path = std::env::current_dir().unwrap(); //- current project path
@@ -237,6 +238,26 @@ fn get_image_from_relative_path(relative_path: &str) -> String {
     
     //- return
     absolute_path.into_os_string().into_string().unwrap()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    //- success case
+    #[test]
+    fn test_get_image_from_relative_path_success() {
+        let relative_path = "src/test_image.jpeg";
+        let absolute_path = get_image_from_relative_path(relative_path);
+        assert_eq!(absolute_path, "/Users/mmp/Documents/projects/rust/image-watermark/src/test_image.jpeg");
+    }
+
+    //- failed case
+    #[test]
+    fn test_get_image_from_relative_path_failed() {
+        let relative_path = "src/test_image.jpeg";
+        let absolute_path = get_image_from_relative_path(relative_path);
+        assert_ne!(absolute_path, "/Users/mmp/Documents/projects/rust/rust-watermark/src/test_image_2.jpeg");
+    } 
 }
 
 pub fn add_text_to_image(text_watermark_input: &TextWatermarkInput) -> ImageResult<()> {
@@ -289,3 +310,90 @@ pub fn add_text_to_image(text_watermark_input: &TextWatermarkInput) -> ImageResu
 
 
 
+#[cfg(test)]
+mod tests_add_text_to_image {
+    use super::*;
+    use std::path::PathBuf;
+    use std::path::Path;
+    use std::fs::remove_file;
+
+    #[test]
+    fn test_add_text_to_image_success() {
+        let relative_path = PathBuf::from("assets/images/test2.jpeg");
+        let mut absolute_path = std::env::current_dir().unwrap();
+        absolute_path.push(relative_path);
+        let absolute_path = absolute_path.into_os_string().into_string().unwrap();
+
+        let text_watermark_input = TextWatermarkInput {
+            image_absolute_path: absolute_path,
+            custom_text: "Hello World".to_string()
+        };
+
+        let result = add_text_to_image(&text_watermark_input);
+        assert_eq!(result.is_ok(), true);
+
+        //- remove file after test
+        // let path = Path::new(&text_watermark_input.image_absolute_path);
+        // remove_file(path).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Custom text is too long")]
+    fn test_add_text_to_image_failed() {
+        let relative_path = PathBuf::from("assets/images/test2.jpeg");
+        let mut absolute_path = std::env::current_dir().unwrap();
+        absolute_path.push(relative_path);
+        let absolute_path = absolute_path.into_os_string().into_string().unwrap();
+
+        let text_watermark_input = TextWatermarkInput {
+            image_absolute_path: absolute_path,
+            custom_text: "This is a very loooooooooooooooooooooooooooooooooooooong image watermark".to_string()
+        };
+
+        let result = add_text_to_image(&text_watermark_input);
+        assert_eq!(result.is_ok(), true);
+
+        //- remove file after test  
+        // let path = Path::new(&text_watermark_input.image_absolute_path);
+        // remove_file(path).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod tests_add_watermark_by_image_ratio {
+    use super::*;
+    use std::path::PathBuf;
+    use std::path::Path;
+    use std::fs::remove_file;
+
+    #[test]
+    fn test_add_watermark_by_image_ratio_success() {
+        let relative_path = PathBuf::from("assets/images/test2.jpeg");
+        let mut absolute_path = std::env::current_dir().unwrap();
+        absolute_path.push(relative_path);
+        let absolute_path = absolute_path.into_os_string().into_string().unwrap();
+
+        let watermark_relative_path = PathBuf::from("assets/images/watermark.png");
+        let mut watermark_absolute_path = std::env::current_dir().unwrap();
+        watermark_absolute_path.push(watermark_relative_path);
+        let watermark_absolute_path = watermark_absolute_path.into_os_string().into_string().unwrap();
+
+        let output_relative_path = PathBuf::from("assets/images");
+        let mut output_absolute_path = std::env::current_dir().unwrap();
+        output_absolute_path.push(output_relative_path);
+        let output_absolute_path = output_absolute_path.into_os_string().into_string().unwrap();
+
+        let watermark_input = WatermarkInput {
+            image_absolute_path: absolute_path.to_owned(),
+            watermark_image_absolute_path: watermark_absolute_path.to_owned(),
+            output_path: output_absolute_path.to_owned()
+        };
+
+        let result = add_watermark_by_image_ratio(&watermark_input);
+        assert_eq!(result.is_ok(), true);
+
+        //- remove file after test
+        let path = Path::new(&watermark_input.image_absolute_path);
+        remove_file(path).unwrap();
+    }
+}
